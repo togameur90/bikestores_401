@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Stores – My Account</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+        }
+
+        .card {
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="site-navbar"></div>
+    <script src="js/navbar.js"></script>
+
+    <main class="container py-5">
+
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3 fw-bold mb-0">My Account</h1>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card bg-dark border-secondary shadow-sm h-100">
+                    <div class="card-body p-4 text-center d-flex flex-column">
+                        <div class="mb-3">
+                            <span class="display-1">👤</span>
+                        </div>
+                        <h2 class="h5 fw-bold mb-1" id="info-name">—</h2>
+                        <span class="badge bg-secondary align-self-center mb-3" id="info-role">—</span>
+
+                        <hr class="border-secondary w-100">
+
+                        <div class="text-start mb-auto w-100">
+                            <p class="mb-1 text-secondary small text-uppercase fw-bold">Contact</p>
+                            <p class="mb-3 text-break" id="info-email">—</p>
+                        </div>
+
+                        <button onclick="logoutUser()" class="btn btn-outline-danger rounded-pill w-100 mt-4">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card bg-dark border-secondary shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h3 class="h5 fw-bold text-white mb-4">Update my information</h3>
+
+                        <div id="form-alert" class="alert d-none" role="alert"></div>
+
+                        <form id="update-form">
+
+                            <div
+                                class="bg-secondary bg-opacity-10 p-3 rounded mb-4 border border-secondary border-opacity-50">
+                                <label for="current-password" class="form-label small fw-bold text-warning">
+                                    Current password required <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" id="current-password" class="form-control"
+                                    placeholder="Enter your current password to authorise changes" required>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-12">
+                                    <label for="new-email" class="form-label small">New email</label>
+                                    <input type="email" id="new-email" class="form-control"
+                                        placeholder="new@email.com (leave blank to keep current)">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="new-password" class="form-label small">New password</label>
+                                    <input type="password" id="new-password" class="form-control"
+                                        placeholder="Leave blank to keep current">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="confirm-password" class="form-label small">Confirm
+                                        password</label>
+                                    <input type="password" id="confirm-password" class="form-control"
+                                        placeholder="Confirmation">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                    Save changes
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const API_URL = 'https://dev-marcher241.users.info.unicaen.fr/bikestores/public';
+        const API_KEY = 'e8f1997c763';
+
+
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!user) { window.location.href = 'index.html'; }
+
+
+        document.getElementById('info-name').textContent = user.employee_name || '—';
+        document.getElementById('info-email').textContent = user.employee_email || '—';
+        document.getElementById('info-role').textContent = user.employee_role || '—';
+
+
+        document.getElementById('update-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const currentPwd = document.getElementById('current-password').value;
+            const newEmail = document.getElementById('new-email').value.trim();
+            const newPwd = document.getElementById('new-password').value;
+            const confirmPwd = document.getElementById('confirm-password').value;
+
+            if (newPwd && newPwd !== confirmPwd) {
+                showAlert('danger', 'The two new passwords do not match.');
+                return;
+            }
+            if (!newEmail && !newPwd) {
+                showAlert('warning', 'No changes entered.');
+                return;
+            }
+
+            const body = { current_password: currentPwd };
+            if (newEmail) body.new_email = newEmail;
+            if (newPwd) body.new_password = newPwd;
+
+            try {
+                const resp = await fetch(
+                    `${API_URL}/employees/${user.employee_id}?api_key=${API_KEY}`,
+                    {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    }
+                );
+                const data = await resp.json();
+
+                if (resp.ok && data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showAlert('success', 'Information updated successfully!');
+                    document.getElementById('info-email').textContent = data.user.employee_email;
+                    this.reset();
+                } else {
+                    showAlert('danger', data.error || 'An error occurred.');
+                }
+            } catch (err) {
+                showAlert('danger', "Unable to reach the API.");
+            }
+        });
+
+        function showAlert(type, message) {
+            const box = document.getElementById('form-alert');
+            box.className = `alert alert-${type} mb-4`;
+            box.textContent = message;
+        }
+
+
+        function logoutUser() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+
+</body>
+
+</html>

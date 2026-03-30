@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Stores – Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .sidebar {
+            border-right: 1px solid #2a2a2a;
+            min-height: calc(100vh - 56px);
+        }
+
+        .card {
+            border-radius: 10px;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .5);
+            transition: box-shadow .2s;
+        }
+
+        .card-img-top {
+            height: 160px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+            background-color: #ffffff;
+        }
+
+        .price {
+            color: #4da3ff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .page-link {
+            background-color: #1e1e1e;
+            border-color: #2a2a2a;
+            color: #ccc;
+        }
+
+        .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        #no-results {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="site-navbar"></div>
+    <script src="js/navbar.js"></script>
+
+    <div class="hero">
+        <h1 class="text-white">Our Bicycle Catalogue 🚲</h1>
+        <p class="text-secondary mt-2 mb-0">Find the bike that suits you</p>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <aside class="col-md-3 col-lg-2 sidebar bg-dark p-4">
+                <h6 class="text-uppercase text-secondary fw-bold mb-3 small">Filters</h6>
+
+                <div class="mb-3">
+                    <label for="search-input" class="form-label small">🔍 Search</label>
+                    <input type="text" id="search-input" class="form-control form-control-sm"
+                        placeholder="Name, brand…">
+                </div>
+
+                <div class="mb-3">
+                    <label for="brand-filter" class="form-label small">🏷️ Brand</label>
+                    <select id="brand-filter" class="form-select form-select-sm">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="cat-filter" class="form-label small">📦 Category</label>
+                    <select id="cat-filter" class="form-select form-select-sm">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="year-filter" class="form-label small">📅 Year</label>
+                    <select id="year-filter" class="form-select form-select-sm">
+                        <option value="">All</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="price-range" class="form-label small">
+                        💰 Max price : <span id="price-display">…</span>
+                    </label>
+                    <input type="range" id="price-range" class="form-range" min="100" max="15000" step="50"
+                        value="15000">
+                </div>
+
+                <button id="reset-btn" class="btn btn-outline-secondary btn-sm w-100">Reset</button>
+            </aside>
+
+            <main class="col-md-9 col-lg-10 p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span id="product-count" class="text-secondary small">Loading…</span>
+                    <select id="sort-select" class="form-select form-select-sm w-auto">
+                        <option value="name-asc">Name A→Z</option>
+                        <option value="name-desc">Name Z→A</option>
+                        <option value="price-asc">Price ↑</option>
+                        <option value="price-desc">Price ↓</option>
+                        <option value="year-desc">Newest</option>
+                        <option value="year-asc">Oldest</option>
+                    </select>
+                </div>
+
+                <div id="products-grid" class="row g-3">
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-secondary">Loading bikes…</p>
+                    </div>
+                </div>
+
+                <div id="no-results" class="text-center py-5">
+                    <p class="fs-4">😕</p>
+                    <p class="text-secondary">No bikes match your filters.</p>
+                    <button class="btn btn-outline-primary btn-sm" id="reset-btn-2">Reset filters</button>
+                </div>
+
+                <nav id="pagination-nav" class="mt-4" aria-label="Pagination">
+                    <ul class="pagination justify-content-center" id="pagination"></ul>
+                </nav>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://dev-marcher241.users.info.unicaen.fr/bikestores/public';
+        const PER_PAGE = 20;
+
+        let allProducts = [];
+        let filtered = [];
+        let currentPage = 1;
+
+        const $grid = document.getElementById('products-grid');
+        const $count = document.getElementById('product-count');
+        const $search = document.getElementById('search-input');
+        const $brandFilter = document.getElementById('brand-filter');
+        const $catFilter = document.getElementById('cat-filter');
+        const $yearFilter = document.getElementById('year-filter');
+        const $priceRange = document.getElementById('price-range');
+        const $priceDisplay = document.getElementById('price-display');
+        const $sort = document.getElementById('sort-select');
+        const $noResults = document.getElementById('no-results');
+        const $pagination = document.getElementById('pagination');
+
+        async function loadProducts() {
+            try {
+                const resp = await fetch(`${API_URL}/products`);
+                allProducts = await resp.json();
+                buildSelectOptions();
+                applyFilters();
+            } catch (e) {
+                $grid.innerHTML = `<div class="col-12"><div class="alert alert-danger">Unable to reach the API.</div></div>`;
+            }
+        }
+
+        function getCategoryImage(categoryName) {
+            if (!categoryName) return 'images/default.jpg';
+
+            const imagesMap = {
+                "Children Bicycles": "Children.jpg",
+                "Comfort Bicycles": "Comfort.jpg",
+                "Cruisers Bicycles": "Cruisers.jpg",
+                "Cyclocross Bicycles": "Cyclocross.jpg",
+                "Electric Bikes": "Electric.jpg",
+                "Mountain Bikes": "Mountain.jpg",
+                "Road Bikes": "Road.jpg"
+            };
+
+            const fileName = imagesMap[categoryName];
+            return fileName ? `images/${fileName}` : 'images/default.jpg';
+        }
+
+        function buildSelectOptions() {
+            const brands = [...new Set(allProducts.map(p => p.brand_name).filter(Boolean))].sort();
+            brands.forEach(b => $brandFilter.insertAdjacentHTML('beforeend', `<option value="${b}">${b}</option>`));
+
+            const cats = [...new Set(allProducts.map(p => p.category_name).filter(Boolean))].sort();
+            cats.forEach(c => $catFilter.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
+
+            const years = [...new Set(allProducts.map(p => p.model_year).filter(Boolean))].sort((a, b) => b - a);
+            years.forEach(y => $yearFilter.insertAdjacentHTML('beforeend', `<option value="${y}">${y}</option>`));
+
+            const maxPrice = Math.ceil(Math.max(...allProducts.map(p => p.price)));
+            $priceRange.max = maxPrice;
+            $priceRange.value = maxPrice;
+            $priceDisplay.textContent = formatPrice(maxPrice);
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            const q = $search.value.toLowerCase();
+            const brand = $brandFilter.value;
+            const cat = $catFilter.value;
+            const year = $yearFilter.value;
+            const maxPrice = parseFloat($priceRange.value);
+
+            filtered = allProducts.filter(p => {
+                if (q && !p.product_name.toLowerCase().includes(q)
+                    && !(p.brand_name || '').toLowerCase().includes(q)) return false;
+                if (brand && p.brand_name !== brand) return false;
+                if (cat && p.category_name !== cat) return false;
+                if (year && String(p.model_year) !== year) return false;
+                if (p.price > maxPrice) return false;
+                return true;
+            });
+
+            const sort = $sort.value;
+            filtered.sort((a, b) => {
+                if (sort === 'name-asc') return a.product_name.localeCompare(b.product_name);
+                if (sort === 'name-desc') return b.product_name.localeCompare(a.product_name);
+                if (sort === 'price-asc') return a.price - b.price;
+                if (sort === 'price-desc') return b.price - a.price;
+                if (sort === 'year-desc') return b.model_year - a.model_year;
+                if (sort === 'year-asc') return a.model_year - b.model_year;
+            });
+
+            render();
+        }
+
+        function render() {
+            const total = filtered.length;
+            const totalPages = Math.ceil(total / PER_PAGE);
+            const start = (currentPage - 1) * PER_PAGE;
+            const page = filtered.slice(start, start + PER_PAGE);
+
+            $count.textContent = `${total} bike(s) found`;
+            $noResults.style.display = total === 0 ? 'block' : 'none';
+
+            if (total === 0) { $grid.innerHTML = ''; $pagination.innerHTML = ''; return; }
+
+            $grid.innerHTML = page.map(p => {
+                const imgSrc = getCategoryImage(p.category_name);
+
+                return `
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <div class="card bg-dark border-secondary h-100">
+                        <img src="${imgSrc}" class="card-img-top" alt="Image vélo ${p.category_name}">
+                        <div class="card-body d-flex flex-column">
+                            <span class="badge bg-primary mb-2 align-self-start" style="font-size:.75rem">${p.category_name || 'N/A'}</span>
+                            <h5 class="card-title fw-bold fs-6">${p.product_name}</h5>
+                            <p class="text-secondary small mb-1">🏷️ Brand: ${p.brand_name || 'N/A'}</p>
+                            <p class="text-secondary small mb-3">📅 Model ${p.model_year || 'N/A'}</p>
+                            <div class="mt-auto">
+                                <span class="price">${formatPrice(p.price)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            if (totalPages <= 1) { $pagination.innerHTML = ''; return; }
+
+            let html = '';
+
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <button class="page-link" onclick="goToPage(${currentPage - 1})">‹</button>
+                     </li>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <button class="page-link" onclick="goToPage(${i})">${i}</button>
+                         </li>`;
+            }
+
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <button class="page-link" onclick="goToPage(${currentPage + 1})">›</button>
+                     </li>`;
+
+            $pagination.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function formatPrice(n) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+        }
+
+        function resetFilters() {
+            $search.value = '';
+            $brandFilter.value = '';
+            $catFilter.value = '';
+            $yearFilter.value = '';
+            $priceRange.value = $priceRange.max;
+            $priceDisplay.textContent = formatPrice(parseFloat($priceRange.max));
+            applyFilters();
+        }
+
+        $search.addEventListener('input', applyFilters);
+        $brandFilter.addEventListener('change', applyFilters);
+        $catFilter.addEventListener('change', applyFilters);
+        $yearFilter.addEventListener('change', applyFilters);
+        $sort.addEventListener('change', applyFilters);
+        $priceRange.addEventListener('input', () => {
+            $priceDisplay.textContent = formatPrice(parseFloat($priceRange.value));
+            applyFilters();
+        });
+        document.getElementById('reset-btn').addEventListener('click', resetFilters);
+        document.getElementById('reset-btn-2').addEventListener('click', resetFilters);
+
+        loadProducts();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Stores – Documentation API</title>
+    <meta name="description"
+        content="Interactive REST API documentation for the Bike Stores web service. Built with Swagger UI.">
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0f1117;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+
+        .api-banner {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0f1117 60%, #1a2240 100%);
+            border-bottom: 1px solid #2a3050;
+            padding: 28px 40px 24px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .api-banner-logo {
+            font-size: 2.4rem;
+        }
+
+        .api-banner-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e8eaf6;
+            letter-spacing: -0.3px;
+        }
+
+        .api-banner-text p {
+            font-size: 0.85rem;
+            color: #6c7a9c;
+            margin-top: 4px;
+        }
+
+        .api-banner-badges {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-version {
+            background: #1e3a5f;
+            color: #5b9bd5;
+            border: 1px solid #2a5a8f;
+        }
+
+        .badge-rest {
+            background: #1a3320;
+            color: #4caf85;
+            border: 1px solid #2a5a3a;
+        }
+
+        .badge-json {
+            background: #2a1f0e;
+            color: #e8a045;
+            border: 1px solid #5a3a1e;
+        }
+
+
+        #swagger-ui {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        .swagger-ui {
+            color: #c9d1e0;
+        }
+
+
+        .swagger-ui .topbar {
+            display: none !important;
+        }
+
+
+        .swagger-ui .information-container {
+            background: #161b2a;
+            border: 1px solid #252d45;
+            border-radius: 12px;
+            padding: 24px 30px;
+            margin: 24px 0;
+        }
+
+        .swagger-ui .info .title {
+            color: #e8eaf6 !important;
+            font-size: 1.6rem !important;
+        }
+
+        .swagger-ui .info p,
+        .swagger-ui .info li {
+            color: #8a96b0 !important;
+        }
+
+        .swagger-ui .info a {
+            color: #5b9bd5 !important;
+        }
+
+
+        .swagger-ui .opblock-tag {
+            background: #161b2a !important;
+            border: 1px solid #252d45 !important;
+            border-radius: 10px !important;
+            margin-bottom: 6px !important;
+            color: #e8eaf6 !important;
+        }
+
+        .swagger-ui .opblock-tag:hover {
+            background: #1b2236 !important;
+        }
+
+
+        .swagger-ui .opblock {
+            background: #161b2a !important;
+            border: 1px solid #252d45 !important;
+            border-radius: 8px !important;
+            margin-bottom: 6px !important;
+            box-shadow: none !important;
+        }
+
+        .swagger-ui .opblock .opblock-summary {
+            background: transparent !important;
+            border-bottom: 1px solid #252d45 !important;
+        }
+
+        .swagger-ui .opblock .opblock-summary-path {
+            color: #c9d1e0 !important;
+        }
+
+        .swagger-ui .opblock .opblock-summary-description {
+            color: #6c7a9c !important;
+        }
+
+
+        .swagger-ui .opblock.opblock-get {
+            border-left: 4px solid #4caf85 !important;
+        }
+
+        .swagger-ui .opblock.opblock-post {
+            border-left: 4px solid #5b9bd5 !important;
+        }
+
+        .swagger-ui .opblock.opblock-put {
+            border-left: 4px solid #e8a045 !important;
+        }
+
+        .swagger-ui .opblock.opblock-delete {
+            border-left: 4px solid #e05555 !important;
+        }
+
+        .swagger-ui .opblock-body-inner,
+        .swagger-ui .tab,
+        .swagger-ui .response-col_status,
+        .swagger-ui .response-col_description {
+            color: #c9d1e0 !important;
+        }
+
+
+        .swagger-ui section.models {
+            background: #161b2a !important;
+            border: 1px solid #252d45 !important;
+            border-radius: 10px !important;
+        }
+
+        .swagger-ui .model-box {
+            background: #0f1117 !important;
+        }
+
+        .swagger-ui .model {
+            color: #c9d1e0 !important;
+        }
+
+
+        .swagger-ui input,
+        .swagger-ui select,
+        .swagger-ui textarea {
+            background: #0f1117 !important;
+            color: #c9d1e0 !important;
+            border: 1px solid #2a3050 !important;
+            border-radius: 6px !important;
+        }
+
+
+        .swagger-ui .btn.execute {
+            background: #3b68c7 !important;
+            border-color: #3b68c7 !important;
+            color: #fff !important;
+            border-radius: 6px !important;
+        }
+
+        .swagger-ui .btn.authorize {
+            background: transparent !important;
+            border: 2px solid #4caf85 !important;
+            color: #4caf85 !important;
+            border-radius: 6px !important;
+        }
+
+
+        .swagger-ui .highlight-code pre,
+        .swagger-ui .microlight {
+            background: #0a0d14 !important;
+            color: #c9d1e0 !important;
+            border-radius: 6px !important;
+        }
+
+        .swagger-ui .responses-inner {
+            background: transparent !important;
+        }
+
+
+        .swagger-ui table thead tr th,
+        .swagger-ui table tbody tr td {
+            border-color: #252d45 !important;
+            color: #c9d1e0 !important;
+        }
+
+        .swagger-ui .parameter__name {
+            color: #e8eaf6 !important;
+        }
+
+        .swagger-ui .parameter__type {
+            color: #6c7a9c !important;
+        }
+
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f1117;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a3050;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a4060;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="site-navbar"></div>
+    <script src="js/navbar.js"></script>
+
+
+    <div class="api-banner">
+        <div class="api-banner-logo">🚲</div>
+        <div class="api-banner-text">
+            <h1>Bike Stores – Web Service API</h1>
+            <p>RESTful JSON API for managing stores, products, brands, categories, employees and stock.</p>
+            <p style="font-size: 0.8rem; color: #8a96b0; margin-top: 6px;">
+                <em>This documentation was designed with <a href="https://swagger.io/" target="_blank"
+                        style="color: #5b9bd5; text-decoration: none;">Swagger</a> and <a
+                        href="https://editor.swagger.io" target="_blank"
+                        style="color: #5b9bd5; text-decoration: none;">its online editor</a>. It is written in
+                    English.</em>
+            </p>
+        </div>
+        <div class="api-banner-badges">
+            <span class="badge badge-version">v1.0</span>
+            <span class="badge badge-rest">REST</span>
+            <span class="badge badge-json">JSON</span>
+        </div>
+    </div>
+
+
+    <div id="swagger-ui"></div>
+
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-standalone-preset.js"></script>
+
+    <script>
+
+        const spec = {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "Bike Stores REST API",
+                "version": "1.0.0",
+                "description": "## Overview\nThis web service provides **CRUD** access to the Bike Stores database over HTTP using **JSON**.\n\nThis documentation was designed using the [Swagger](https://swagger.io/) tool and its online editor at [editor.swagger.io](https://editor.swagger.io). It is written in English.\n\n## Base URL\n`https://dev-marcher241.users.info.unicaen.fr/bikestores/public`\n\n## Authentication\nAll **write operations** (POST, PUT, DELETE) require an API key passed as a query parameter:\n`?api_key=e8f1997c763`\n\nRead operations (GET) are public.\n**Exception**: `POST /employees/login` is public."
+            },
+            "servers": [
+                {
+                    "url": "https://dev-marcher241.users.info.unicaen.fr/bikestores/public",
+                    "description": "Local development server"
+                }
+            ],
+            "paths": {
+                "/stores": {
+                    "get": {
+                        "summary": "List all stores",
+                        "responses": {
+                            "200": {
+                                "description": "A list of stores"
+                            }
+                        }
+                    },
+                    "post": {
+                        "summary": "Create a store",
+                        "parameters": [
+                            {
+                                "in": "query",
+                                "name": "api_key",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Store"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Store created"
+                            }
+                        }
+                    }
+                },
+                "/stores/{id}": {
+                    "get": {
+                        "summary": "Get store by ID",
+                        "parameters": [
+                            {
+                                "in": "path",
+                                "name": "id",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Store returned"
+                            }
+                        }
+                    },
+                    "put": {
+                        "summary": "Update a store",
+                        "parameters": [
+                            {
+                                "in": "path",
+                                "name": "id",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "in": "query",
+                                "name": "api_key",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Store"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Store updated"
+                            }
+                        }
+                    },
+                    "delete": {
+                        "summary": "Delete a store",
+                        "parameters": [
+                            {
+                                "in": "path",
+                                "name": "id",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "in": "query",
+                                "name": "api_key",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Store deleted"
+                            }
+                        }
+                    }
+                },
+                "/products": {
+                    "get": {
+                        "summary": "List all products",
+                        "responses": {
+                            "200": {
+                                "description": "A list of products"
+                            }
+                        }
+                    },
+                    "post": {
+                        "summary": "Create a product",
+                        "parameters": [
+                            {
+                                "in": "query",
+                                "name": "action",
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "addProduct"
+                                    ]
+                                }
+                            },
+                            {
+                                "in": "query",
+                                "name": "api_key",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ProductInput"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Product created"
+                            }
+                        }
+                    }
+                },
+                "/products/{id}": {
+                    "get": {
+                        "summary": "Get product by ID",
+                        "parameters": [
+                            {
+                                "in": "path",
+                                "name": "id",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Product returned"
+                            }
+                        }
+                    },
+                    "put": {
+                        "summary": "Update a product",
+                        "parameters": [
+                            {
+                                "in": "path",
+                                "name": "id",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "in": "query",
+                                "name": "api_key",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ProductInput"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Product updated"
+                            }
+                        }
+                    },
+                    "delete": {
+                        "summary": "Delete a product",
+                        "parameters": [
+                            {
+                                "in": "path",
+                                "name": "id",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "in": "query",
+                                "name": "api_key",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Product deleted"
+                            }
+                        }
+                    }
+                },
+                "/brands": {
+                    "get": {
+                        "summary": "List all brands",
+                        "responses": {
+                            "200": {
+                                "description": "A list of brands"
+                            }
+                        }
+                    }
+                },
+                "/categories": {
+                    "get": {
+                        "summary": "List all categories",
+                        "responses": {
+                            "200": {
+                                "description": "A list of categories"
+                            }
+                        }
+                    }
+                },
+                "/employees": {
+                    "get": {
+                        "summary": "List all employees",
+                        "responses": {
+                            "200": {
+                                "description": "A list of employees"
+                            }
+                        }
+                    }
+                },
+                "/employees/login": {
+                    "post": {
+                        "summary": "Login an employee",
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "email": {
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Login successful"
+                            }
+                        }
+                    }
+                },
+                "/stocks/{store_id}": {
+                    "get": {
+                        "summary": "List stock for a store",
+                        "parameters": [
+                            {
+                                "in": "path",
+                                "name": "store_id",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Stock list"
+                            }
+                        }
+                    }
+                }
+            },
+            "components": {
+                "schemas": {
+                    "Store": {
+                        "type": "object",
+                        "properties": {
+                            "store_name": {
+                                "type": "string"
+                            },
+                            "phone": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string"
+                            },
+                            "street": {
+                                "type": "string"
+                            },
+                            "city": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            },
+                            "zip_code": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "ProductInput": {
+                        "type": "object",
+                        "properties": {
+                            "product_name": {
+                                "type": "string"
+                            },
+                            "list_price": {
+                                "type": "number"
+                            },
+                            "model_year": {
+                                "type": "integer"
+                            },
+                            "brand_id": {
+                                "type": "integer"
+                            },
+                            "category_id": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        window.onload = () => {
+            SwaggerUIBundle({
+                spec: spec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                displayRequestDuration: true,
+                filter: true,
+                tryItOutEnabled: true
+            });
+        };</script>
+
+</body>
+
+</html>

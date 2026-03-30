@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Si le fichier ou le dossier demandé existe vraiment (ex: images, CSS), on le sert directement
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Sinon, on redirige toutes les autres requêtes vers notre contrôleur frontal (API.php)
+RewriteRule ^(.*)$ API.php?route=$1 [QSA,L]
+
+# Désactivation de l'authentification (si existante sur le serveur) pour le webservice
+Satisfy Any
+Allow from all
